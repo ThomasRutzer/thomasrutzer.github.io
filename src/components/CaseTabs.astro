@@ -558,7 +558,7 @@ const { cases } = Astro.props;
       if (prefersReducedMotion()) {
         gsap.set(plug, { x: target.x, y: target.y, opacity: 1 });
         cable!.setAttribute("d", targetD);
-        if (opts.spark) ui.play("scanning");
+        if (opts.spark) ui.play("connect");
         return;
       }
 
@@ -713,9 +713,10 @@ const { cases } = Astro.props;
       draw();
       sparkTimer = setInterval(draw, 55);
 
-      // "connecting" is a looping cue: start it once and keep the handle so
+      // "scanning" is a looping cue: start it once and keep the handle so
       // stopSpark can end it when the arc breaks or the plug is dropped.
-      sparkSound = ui.play("scanning", { retrigger: "restart" });
+      // Its pack default (0.075) gets lost under the other cues.
+      sparkSound = ui.play("scanning", { retrigger: "restart", volume: 0.15 });
     }
 
     function setHover(index: number) {
