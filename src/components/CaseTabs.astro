@@ -716,7 +716,7 @@ const { cases } = Astro.props;
       // "scanning" is a looping cue: start it once and keep the handle so
       // stopSpark can end it when the arc breaks or the plug is dropped.
       // Its pack default (0.075) gets lost under the other cues.
-      sparkSound = ui.play("scanning", { retrigger: "restart", volume: 0.15 });
+      sparkSound = ui.play("scanning", { retrigger: "restart", volume: 0.5 });
     }
 
     function setHover(index: number) {
