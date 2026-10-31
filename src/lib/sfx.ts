@@ -4,7 +4,7 @@ let instance: UISFXPlayer | null = null;
 
 export function getSFX(): UISFXPlayer {
   instance ??= createUISFX({
-    pack: "organic",
+    pack: "mechanical",
     preferences: { key: "uisfx:preferences" },
   });
 

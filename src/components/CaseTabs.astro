@@ -558,7 +558,7 @@ const { cases } = Astro.props;
       if (prefersReducedMotion()) {
         gsap.set(plug, { x: target.x, y: target.y, opacity: 1 });
         cable!.setAttribute("d", targetD);
-        if (opts.spark) ui.play("connect");
+        if (opts.spark) ui.play("scanning");
         return;
       }
 
@@ -715,7 +715,7 @@ const { cases } = Astro.props;
 
       // "connecting" is a looping cue: start it once and keep the handle so
       // stopSpark can end it when the arc breaks or the plug is dropped.
-      sparkSound = ui.play("connecting", { retrigger: "restart" });
+      sparkSound = ui.play("scanning", { retrigger: "restart" });
     }
 
     function setHover(index: number) {
