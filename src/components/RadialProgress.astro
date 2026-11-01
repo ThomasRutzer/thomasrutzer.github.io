@@ -107,7 +107,9 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
   }
 
   .spoke.active {
-    animation: spoke-fill 0.15s calc(var(--i) * 35ms) linear both;
+    animation:
+      spoke-fill 0.15s calc(var(--i) * 35ms) linear both,
+      spoke-pulse 3s calc(var(--i) * 3s / 16) ease-in-out infinite;
   }
 
   @keyframes spoke-fill {
@@ -118,6 +120,18 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
     to {
       transform: scale(1);
       fill: var(--color-y100);
+    }
+  }
+
+  @keyframes spoke-pulse {
+    0%,
+    100% {
+      scale: 1;
+      opacity: 1;
+    }
+    50% {
+      scale: 0.85;
+      opacity: 0.6;
     }
   }
 
