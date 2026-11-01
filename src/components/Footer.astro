@@ -18,6 +18,7 @@ interface Props {
 ---
 
 <footer class="container">
+  <span class="flow" aria-hidden="true">∿ ⟶ /\ ⟶ ⊙</span>
   <nav aria-label="Contact and legal">
     <a
       href="https://prev.thomasrutzer.dev"
@@ -25,11 +26,8 @@ interface Props {
       rel="noopener noreferrer"
       >Previous Portfolio
     </a>
-    <span class="flow" aria-hidden="true">∿ ⟶</span>
     <ClipboardButton label="hi@thomasrutzer.dev" copy="hi@thomasrutzer.dev" />
-    <span class="flow" aria-hidden="true">/\</span>
     <a href="/imprint">Imprint</a>
-    <span class="flow" aria-hidden="true">⟶ ⊙</span>
   </nav>
 </footer>
 
@@ -55,7 +53,7 @@ interface Props {
   .columns {
     display: grid;
     justify-content: space-between;
-    gap: var(--space-l);
+    gap: var(--space-s);
   }
 
   .flow {
@@ -65,7 +63,7 @@ interface Props {
   nav {
     display: flex;
     align-items: center;
-    gap: var(--space-m);
+    gap: var(--space-s);
     justify-self: end;
     font-size: var(--font-step-0);
     color: var(--color-foreground);
