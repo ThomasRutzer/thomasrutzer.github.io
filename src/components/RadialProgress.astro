@@ -47,6 +47,7 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
           class:list={["spoke", i < activeCount && "active"]}
           cx={cx}
           cy={cy}
+          r="2"
           style={`--i: ${i}`}
         />
       ))
@@ -99,8 +100,10 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
   }
 
   .spoke {
-    r: 1;
     fill: var(--color-ui);
+    transform: scale(0.5);
+    transform-box: fill-box;
+    transform-origin: center;
   }
 
   .spoke.active {
@@ -109,11 +112,11 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
 
   @keyframes spoke-fill {
     from {
-      r: 1;
+      transform: scale(0.5);
       fill: var(--color-ui);
     }
     to {
-      r: 2;
+      transform: scale(1);
       fill: var(--color-y100);
     }
   }
@@ -121,7 +124,7 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
   @media (prefers-reduced-motion: reduce) {
     .spoke.active {
       animation: none;
-      r: 2;
+      transform: scale(1);
       fill: var(--color-y100);
     }
   }
