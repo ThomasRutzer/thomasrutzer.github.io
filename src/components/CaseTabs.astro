@@ -88,7 +88,6 @@ const { cases } = Astro.props;
 
             {c.data.tech && c.data.tech.length > 0 && (
               <div class="tech-highlights">
-                <hr />
                 <TechHighlights tech={c.data.tech} />
               </div>
             )}
@@ -286,15 +285,12 @@ const { cases } = Astro.props;
 
     .case-panel-header {
       display: flex;
+      flex: 1;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       gap: var(--space-m);
-
-      & > div:first-child {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-m);
-      }
+      padding-bottom: var(--space-m);
+      border-bottom: var(--border-stroke-width) solid var(--color-muted);
     }
 
     .case-panel {
@@ -353,13 +349,8 @@ const { cases } = Astro.props;
       display: flex;
       flex-direction: column;
       gap: var(--space-m);
-
-      hr {
-        width: 100%;
-        margin: 0;
-        border: none;
-        border-top: var(--border-stroke-width) solid var(--color-muted);
-      }
+      padding-top: var(--space-m);
+      border-top: var(--border-stroke-width) solid var(--color-muted);
     }
 
     .case-deco-footer {

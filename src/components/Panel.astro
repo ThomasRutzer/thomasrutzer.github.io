@@ -6,62 +6,72 @@ interface Props {
 }
 
 const { name, rev, class: className } = Astro.props;
+const hasHeader = Boolean(name || rev || Astro.slots.has("header"));
 ---
 
 <section class:list={["panel", className]} aria-label={name}>
-  <div class="panel-grad"></div>
-  <div class="panel-noise"></div>
-  <div class="panel-rim"></div>
-  <div class="panel-shadow"></div>
-
   <div class="panel-content">
     {
-      (name || rev) && (
+      hasHeader && (
         <header class="panel-header">
           {name && <span class="panel-name">{name}</span>}
           {rev && <span class="panel-rev">{rev}</span>}
+          <slot name="header" />
         </header>
       )
     }
 
-    <slot />
+    <div class="panel-body">
+      <slot />
+    </div>
   </div>
 </section>
 
 <style>
   .panel {
+    --panel-top: var(--color-muted);
+    --panel-bottom: color-mix(
+      in srgb,
+      var(--color-muted) 75%,
+      var(--color-foreground)
+    );
+    --panel-frame: color-mix(
+      in srgb,
+      var(--color-muted) 55%,
+      var(--color-foreground)
+    );
+    --panel-gap: var(--color-foreground);
+    --panel-well: color-mix(
+      in srgb,
+      var(--color-foreground) 80%,
+      var(--color-muted)
+    );
+    --panel-highlight: color-mix(in srgb, var(--color-p100) 10%, transparent);
+    --panel-inset: var(--space-xs);
+    --panel-inner-radius: 8px;
+    /* outer radius = inner radius + inset, keeps the corners concentric */
+    --panel-radius: calc(var(--panel-inner-radius) + var(--panel-inset));
+
     position: relative;
     overflow: hidden;
-    border: 0.5px solid var(--color-muted);
-    border-radius: var(--border-radius-s);
-    background: var(--color-panel);
-    box-shadow:
-      inset 0 1px 0 rgba(180, 180, 210, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.7),
-      inset 1px 0 0 rgba(120, 120, 150, 0.05),
-      inset -1px 0 0 rgba(0, 0, 0, 0.55),
-      inset 0 0 22px rgba(0, 0, 0, 0.55),
-      0 22px 46px -16px rgba(0, 0, 0, 0.85),
-      0 1px 0 rgba(0, 0, 0, 0.6);
+    border-radius: var(--panel-radius);
+    background: linear-gradient(
+      180deg,
+      var(--panel-top) 0%,
+      var(--panel-bottom) 100%
+    );
     margin: 0 calc(var(--space-m) * -1);
 
     &::before {
       content: "";
       position: absolute;
       inset: 0;
-      z-index: 2;
+      z-index: 1;
       pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(220, 220, 240, 0.025) 0px,
-        rgba(220, 220, 240, 0.025) 0.5px,
-        transparent 0.5px,
-        transparent 2.5px,
-        rgba(0, 0, 0, 0.06) 2.5px,
-        rgba(0, 0, 0, 0.06) 3px
-      );
-      mix-blend-mode: overlay;
-      opacity: 0.55;
+      background: url("/noise.png") 0 0 / 128px 128px;
+      image-rendering: pixelated;
+      mix-blend-mode: soft-light;
+      opacity: 0.25;
     }
 
     &::after {
@@ -71,106 +81,50 @@ const { name, rev, class: className } = Astro.props;
       z-index: 2;
       pointer-events: none;
       background: radial-gradient(
-        ellipse 55% 28% at 32% 6%,
-        rgba(160, 160, 200, 0.16) 0%,
-        rgba(120, 120, 160, 0.05) 35%,
+        ellipse 70% 30% at 40% 0%,
+        color-mix(in srgb, var(--color-p100) 8%, transparent) 0%,
         transparent 70%
       );
-      mix-blend-mode: screen;
     }
-  }
-
-  .panel-grad {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background:
-      radial-gradient(
-        ellipse 110% 60% at 50% -10%,
-        #2d2d40 0%,
-        #1a1a26 38%,
-        #0e0e16 70%,
-        #050510 100%
-      ),
-      linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.25) 100%);
-    background-blend-mode: normal, multiply;
-  }
-
-  .panel-noise {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    opacity: 0.85;
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E");
-    background-size:
-      180px 180px,
-      400px 400px;
-    mix-blend-mode: overlay;
-  }
-
-  .panel-rim {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    z-index: 3;
-    opacity: 0.55;
-    background: linear-gradient(
-      90deg,
-      transparent 4%,
-      #4a4a60 18%,
-      #a0a0c0 40%,
-      #c8c8e0 50%,
-      #a0a0c0 60%,
-      #4a4a60 82%,
-      transparent 96%
-    );
-  }
-
-  .panel-shadow {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    z-index: 3;
-    pointer-events: none;
-    background: linear-gradient(180deg, transparent, rgba(2, 2, 8, 0.75));
   }
 
   .panel-content {
     position: relative;
-    z-index: 4;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-m);
-    padding: var(--space-m);
+    z-index: 3;
+    margin: var(--panel-inset);
+    border-radius: var(--panel-inner-radius);
+    background: var(--panel-well);
   }
 
   .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 0 var(--space-m);
+    padding: var(--space-s) 0;
+    border-bottom: var(--border-stroke-width) solid var(--color-muted);
+  }
+
+  .panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-s);
   }
 
   .panel-name,
   .panel-rev {
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
+    font-family: var(--font-main);
+    font-size: var(--font-step-1);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
   }
 
   .panel-name {
-    font-size: var(--font-step-0);
-    color: var(--color-foreground);
+    color: var(--color-ui);
   }
 
   .panel-rev {
-    font-size: var(--font-step-0);
-    letter-spacing: 0.1em;
-    color: var(--color-muted);
+    color: color-mix(in srgb, var(--color-ui) 45%, transparent);
   }
 </style>
