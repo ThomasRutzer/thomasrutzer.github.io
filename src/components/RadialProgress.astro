@@ -1,4 +1,6 @@
 ---
+import Dial from "./Dial.astro";
+
 interface Props {
   progress: number; // 0–100
   label: string;
@@ -7,52 +9,10 @@ interface Props {
 }
 
 const { progress, label, value, size = 80 } = Astro.props;
-
-// Clockwise from 12 o'clock
-const spokes = [
-  { cx: 33.6035, cy: 16.603 },
-  { cx: 40.4414, cy: 18.03895 },
-  { cx: 45.60955, cy: 21.59685 },
-  { cx: 49.4249, cy: 27.4403 },
-  { cx: 50.6035, cy: 33.603 },
-  { cx: 49.1674, cy: 40.4409 },
-  { cx: 45.60955, cy: 45.60905 },
-  { cx: 39.7662, cy: 49.42465 },
-  { cx: 33.6035, cy: 50.603 },
-  { cx: 26.7656, cy: 49.1674 },
-  { cx: 21.59735, cy: 45.60905 },
-  { cx: 17.7818, cy: 39.76595 },
-  { cx: 16.3535, cy: 33.103 },
-  { cx: 18.03945, cy: 26.7652 },
-  { cx: 21.59735, cy: 21.59685 },
-  { cx: 27.4405, cy: 17.7816 },
-];
-
-const clamped = Math.max(0, Math.min(100, progress));
-const activeCount = Math.round((clamped / 100) * spokes.length);
 ---
 
 <figure>
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 68 68"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    {
-      spokes.map(({ cx, cy }, i) => (
-        <circle
-          class:list={["spoke", i < activeCount && "active"]}
-          cx={cx}
-          cy={cy}
-          r="2"
-          style={`--i: ${i}`}
-        />
-      ))
-    }
-  </svg>
+  <Dial value={progress / 100} {size} />
   <figcaption>
     <span class="value">{value}</span>
     <span class="label">{label}</span>
@@ -67,16 +27,6 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
     gap: var(--space-xs);
     margin: 0;
     flex: 1;
-
-    & svg {
-      flex: none;
-      max-width: 100%;
-      height: auto;
-      aspect-ratio: 1;
-      box-sizing: content-box;
-      border-radius: 50%;
-      border: 2px solid var(--color-bg);
-    }
   }
 
   figcaption {
@@ -97,49 +47,5 @@ const activeCount = Math.round((clamped / 100) * spokes.length);
     font-size: var(--font-step-0);
     max-width: 100%;
     text-wrap: balance;
-  }
-
-  .spoke {
-    fill: var(--color-ui);
-    transform: scale(0.5);
-    transform-box: fill-box;
-    transform-origin: center;
-  }
-
-  .spoke.active {
-    animation:
-      spoke-fill 0.15s calc(var(--i) * 35ms) linear both,
-      spoke-pulse 3s calc(var(--i) * 3s / 16) ease-in-out infinite;
-  }
-
-  @keyframes spoke-fill {
-    from {
-      transform: scale(0.5);
-      fill: var(--color-ui);
-    }
-    to {
-      transform: scale(1);
-      fill: var(--color-y100);
-    }
-  }
-
-  @keyframes spoke-pulse {
-    0%,
-    100% {
-      scale: 1;
-      opacity: 1;
-    }
-    50% {
-      scale: 0.85;
-      opacity: 0.6;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .spoke.active {
-      animation: none;
-      transform: scale(1);
-      fill: var(--color-y100);
-    }
   }
 </style>

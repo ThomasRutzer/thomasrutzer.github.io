@@ -1,0 +1,76 @@
+---
+interface Props {
+  value: number; // 0–1
+  size?: number;
+  label?: string;
+}
+
+const { value, size = 80, label } = Astro.props;
+
+const START = -135; // degrees from 12 o'clock, clockwise (~7 o'clock)
+const SWEEP = 270;
+
+const clamped = Math.max(0, Math.min(1, value));
+const angle = START + clamped * SWEEP;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 100 100"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+>
+  <circle cx="50" cy="50" r="46" />
+  <g transform={`rotate(${angle} 50 50)`}>
+    <line x1="50" y1="44" x2="50" y2="20" />
+    <circle cx="50" cy="82" r="3.5" />
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from={`${START} 50 50`}
+      to={`${angle} 50 50`}
+      dur="1.2s"
+      calcMode="spline"
+      keyTimes="0;1"
+      keySplines="0.22 1 0.36 1"
+      fill="freeze"
+    />
+  </g>
+</svg>
+
+<script>
+  // Static rotation on <g> already shows the final value, so just drop the animation
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document
+      .querySelectorAll("animateTransform")
+      .forEach((animation) => animation.remove());
+  }
+</script>
+
+<style>
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+
+    & > circle {
+      stroke: var(--color-ui);
+      stroke-width: 2;
+    }
+
+    & g circle {
+      fill: var(--color-ui);
+    }
+
+    & line {
+      stroke: var(--color-y100);
+      stroke-width: 6;
+      stroke-linecap: round;
+    }
+  }
+</style>
