@@ -23,33 +23,14 @@ const angle = START + clamped * SWEEP;
   role={label ? "img" : undefined}
   aria-label={label}
   aria-hidden={label ? undefined : "true"}
+  style={`--angle: ${angle}deg; --start: ${START}deg`}
 >
-  <circle cx="50" cy="50" r="46" />
-  <g transform={`rotate(${angle} 50 50)`}>
-    <line x1="50" y1="44" x2="50" y2="20" />
-    <circle cx="50" cy="82" r="3.5" />
-    <animateTransform
-      attributeName="transform"
-      type="rotate"
-      from={`${START} 50 50`}
-      to={`${angle} 50 50`}
-      dur="1.2s"
-      calcMode="spline"
-      keyTimes="0;1"
-      keySplines="0.22 1 0.36 1"
-      fill="freeze"
-    />
+  <circle cx="50" cy="50" r="46"></circle>
+  <g>
+    <line x1="50" y1="44" x2="50" y2="20"></line>
+    <circle cx="50" cy="82" r="3.5"></circle>
   </g>
 </svg>
-
-<script>
-  // Static rotation on <g> already shows the final value, so just drop the animation
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    document
-      .querySelectorAll("animateTransform")
-      .forEach((animation) => animation.remove());
-  }
-</script>
 
 <style>
   svg {
@@ -63,6 +44,12 @@ const angle = START + clamped * SWEEP;
       stroke-width: 2;
     }
 
+    & g {
+      rotate: var(--angle);
+      transform-origin: 50px 50px;
+      animation: dial-sweep 3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
     & g circle {
       fill: var(--color-ui);
     }
@@ -71,6 +58,18 @@ const angle = START + clamped * SWEEP;
       stroke: var(--color-y100);
       stroke-width: 6;
       stroke-linecap: round;
+    }
+  }
+
+  @keyframes dial-sweep {
+    from {
+      rotate: var(--start);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    svg g {
+      animation: none;
     }
   }
 </style>
