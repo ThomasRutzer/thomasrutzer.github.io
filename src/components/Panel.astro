@@ -40,7 +40,6 @@ const hasHeader = Boolean(name || rev || Astro.slots.has("header"));
       var(--color-muted) 55%,
       var(--color-foreground)
     );
-    --panel-gap: var(--color-foreground);
     --panel-well: color-mix(
       in srgb,
       var(--color-foreground) 80%,
@@ -86,19 +85,22 @@ const hasHeader = Boolean(name || rev || Astro.slots.has("header"));
   }
 
   .panel-content {
+    display: flex;
+    row-gap: var(--space-m);
+    flex-direction: column;
     position: relative;
     z-index: 3;
     margin: var(--panel-inset);
     border-radius: var(--border-radius-s);
     background: var(--panel-well);
+    padding: calc(var(--space-m) / 2);
   }
 
   .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin: 0 var(--space-m);
-    padding: var(--space-s) 0;
+    padding-bottom: var(--space-s);
     border-bottom: var(--border-stroke-width) solid var(--color-muted);
   }
 
@@ -106,7 +108,6 @@ const hasHeader = Boolean(name || rev || Astro.slots.has("header"));
     display: flex;
     flex-direction: column;
     gap: var(--space-m);
-    padding: var(--space-s);
   }
 
   .panel-name,

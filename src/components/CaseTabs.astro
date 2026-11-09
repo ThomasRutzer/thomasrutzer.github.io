@@ -63,7 +63,7 @@ const { cases } = Astro.props;
         hidden={i !== 0}
       >
         <Panel>
-          <div class="case-panel-header">
+          <div slot="header" class="case-panel-header">
             <CaseBy by={c.data.by} />
             <CaseDuration
               startDate={c.data.startDate}
@@ -287,10 +287,6 @@ const { cases } = Astro.props;
       display: flex;
       flex: 1;
       justify-content: space-between;
-      align-items: center;
-      gap: var(--space-m);
-      padding-bottom: var(--space-m);
-      border-bottom: var(--border-stroke-width) solid var(--color-muted);
     }
 
     .case-panel {
