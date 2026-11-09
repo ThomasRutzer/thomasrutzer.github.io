@@ -48,13 +48,10 @@ const hasHeader = Boolean(name || rev || Astro.slots.has("header"));
     );
     --panel-highlight: color-mix(in srgb, var(--color-p100) 10%, transparent);
     --panel-inset: var(--space-xs);
-    --panel-inner-radius: 8px;
-    /* outer radius = inner radius + inset, keeps the corners concentric */
-    --panel-radius: calc(var(--panel-inner-radius) + var(--panel-inset));
 
     position: relative;
     overflow: hidden;
-    border-radius: var(--panel-radius);
+    border-radius: calc(var(--border-radius-s) + var(--panel-inset));
     background: linear-gradient(
       180deg,
       var(--panel-top) 0%,
@@ -92,14 +89,14 @@ const hasHeader = Boolean(name || rev || Astro.slots.has("header"));
     position: relative;
     z-index: 3;
     margin: var(--panel-inset);
-    border-radius: var(--panel-inner-radius);
+    border-radius: var(--border-radius-s);
     background: var(--panel-well);
   }
 
   .panel-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin: 0 var(--space-m);
     padding: var(--space-s) 0;
     border-bottom: var(--border-stroke-width) solid var(--color-muted);
