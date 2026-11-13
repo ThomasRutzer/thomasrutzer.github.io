@@ -1,12 +1,11 @@
 ---
 import CaseIcon from "@components/CaseIcon.astro";
 import CaseDeco from "@components/CaseDeco.astro";
-import CaseStatus from "@components/CaseStatus.astro";
 import Jack from "@components/Jack.astro";
+import PatchCable from "@components/patch-cable/PatchCable.astro";
 import Panel from "@components/Panel.astro";
 import type { CollectionEntry } from "astro:content";
 import RadialProgress from "./RadialProgress.astro";
-import Progress from "./Progress.astro";
 import TechHighlights from "./TechHighlights.astro";
 import CaseDuration from "./CaseDuration.astro";
 import CaseBy from "./CaseBy.astro";
@@ -19,94 +18,88 @@ const { cases } = Astro.props;
 ---
 
 <div>
-  <div role="tablist" aria-label="Case studies">
+  <PatchCable mode="select" active={0}>
+    <div role="tablist" aria-label="Case studies">
+      {
+        cases.map((c, i) => (
+          <button
+            role="tab"
+            id={`tab-${c.id}`}
+            aria-controls={`panel-${c.id}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            <header>
+              <CaseIcon icon={c.data.icon} animate={i === 0} />
+              <h2>{c.data.title}</h2>
+            </header>
+
+            <footer aria-hidden="true">
+              <Jack data-cable-target />
+              <span>Out</span>
+            </footer>
+          </button>
+        ))
+      }
+    </div>
+
+    <div data-input aria-hidden="true">
+      <Jack data-cable-origin />
+    </div>
+
     {
       cases.map((c, i) => (
-        <button
-          role="tab"
-          id={`tab-${c.id}`}
-          aria-controls={`panel-${c.id}`}
-          aria-selected={i === 0 ? "true" : "false"}
-          tabindex={i === 0 ? 0 : -1}
+        <section
+          role="tabpanel"
+          id={`panel-${c.id}`}
+          aria-labelledby={`tab-${c.id}`}
+          hidden={i !== 0}
         >
-          <header>
-            <CaseIcon icon={c.data.icon} animate={i === 0} />
-            <h2>{c.data.title}</h2>
-          </header>
+          <Panel>
+            <header slot="header">
+              <CaseBy by={c.data.by} />
+              <CaseDuration
+                startDate={c.data.startDate}
+                endDate={c.data.endDate}
+              />
+            </header>
 
-          <footer aria-hidden="true">
-            <Jack class="jack" />
-            <span>Out</span>
-          </footer>
-        </button>
+            <article>
+              <h3>{c.data.title}</h3>
+
+              {c.data.businessCase && (
+                <aside>
+                  {c.data.businessCase.map((m) => (
+                    <RadialProgress
+                      label={m.label}
+                      value={m.value}
+                      progress={m.progress}
+                    />
+                  ))}
+                </aside>
+              )}
+
+              {c.data.tech && c.data.tech.length > 0 && (
+                <div>
+                  <TechHighlights tech={c.data.tech} />
+                </div>
+              )}
+
+              <p>{c.data.description}</p>
+            </article>
+
+            <footer aria-hidden="true">
+              <CaseDeco icon={c.data.icon} />
+            </footer>
+          </Panel>
+        </section>
       ))
     }
-  </div>
-
-  <svg class="cable-layer" aria-hidden="true">
-    <path class="cable"></path>
-    <path class="spark"></path>
-  </svg>
-
-  <div aria-hidden="true">
-    <div class="plug"></div>
-
-    <Jack class="input-jack" />
-  </div>
-
-  {
-    cases.map((c, i) => (
-      <section
-        role="tabpanel"
-        id={`panel-${c.id}`}
-        aria-labelledby={`tab-${c.id}`}
-        hidden={i !== 0}
-      >
-        <Panel>
-          <div slot="header" class="case-panel-header">
-            <CaseBy by={c.data.by} />
-            <CaseDuration
-              startDate={c.data.startDate}
-              endDate={c.data.endDate}
-            />
-          </div>
-
-          <div class="case-panel">
-            <h3>{c.data.title}</h3>
-
-            {c.data.businessCase && (
-              <div class="metrics">
-                {c.data.businessCase.map((m) => (
-                  <RadialProgress
-                    label={m.label}
-                    value={m.value}
-                    progress={m.progress}
-                  />
-                ))}
-              </div>
-            )}
-
-            {c.data.tech && c.data.tech.length > 0 && (
-              <div class="tech-highlights">
-                <TechHighlights tech={c.data.tech} />
-              </div>
-            )}
-
-            <p class="case-description">{c.data.description}</p>
-          </div>
-
-          <div class="case-deco-footer" aria-hidden="true">
-            <CaseDeco icon={c.data.icon} />
-          </div>
-        </Panel>
-      </section>
-    ))
-  }
+  </PatchCable>
 </div>
 
 <style>
-  div:has(> [role="tablist"]) {
-    position: relative;
+  div:has(> :global(patch-cable)) {
     container-type: inline-size;
     container-name: tablist;
   }
@@ -188,92 +181,35 @@ const { cases } = Astro.props;
       text-transform: uppercase;
     }
 
-    &[aria-selected="true"] footer :global(.jack) {
-      border-color: var(--color-p100);
-      background: var(--color-p100);
-    }
-
-    footer :global(.jack) {
+    footer :global([data-cable-target]) {
       transition:
         border-color 120ms ease,
         box-shadow 120ms ease;
     }
 
-    &.cable-target footer :global(.jack):not([aria-selected="true"]) {
+    &[aria-selected="true"] footer :global([data-cable-target]) {
+      border-color: var(--color-p100);
+      background: var(--color-p100);
+    }
+
+    footer :global([data-cable-target][data-cable-hot]) {
       border-color: var(--color-y100);
       box-shadow: 0 0 0 4px
         color-mix(in srgb, var(--color-y100) 30%, transparent);
     }
 
-    &.cable-target[aria-selected="true"] footer :global(.jack) {
+    &[aria-selected="true"] footer :global([data-cable-target][data-cable-hot]) {
       border-color: var(--color-p300);
       box-shadow: 0 0 0 4px
         color-mix(in srgb, var(--color-p100) 30%, transparent);
     }
   }
 
-  .cable-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .cable {
-    fill: none;
-    stroke: var(--color-foreground);
-    stroke-width: 4;
-  }
-
-  .spark {
-    fill: none;
-    stroke: var(--color-y100);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0;
-    filter: drop-shadow(0 0 3px var(--color-y100))
-      drop-shadow(0 0 6px var(--color-y100));
-  }
-
-  .plug {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--color-foreground);
-    border: 3px solid var(--color-bg);
-    box-shadow: 0 0 0 1px var(--color-foreground);
-    cursor: grab;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: none;
-    pointer-events: auto;
-    opacity: 0;
-    z-index: 3;
-
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -14px;
-      border-radius: 50%;
-    }
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
-
-  :global(.input-jack) {
+  div[data-input] {
     position: relative;
     margin-top: var(--space-2xl-3xl);
-    margin-left: 50%;
+    padding-left: 50%;
     z-index: var(--z-dropdown);
-    display: block;
   }
 
   section[role="tabpanel"] {
@@ -283,13 +219,13 @@ const { cases } = Astro.props;
       display: none;
     }
 
-    .case-panel-header {
+    header {
       display: flex;
       flex: 1;
       justify-content: space-between;
     }
 
-    .case-panel {
+    article {
       display: grid;
       grid-template-areas:
         "title"
@@ -325,7 +261,7 @@ const { cases } = Astro.props;
       }
     }
 
-    .case-description {
+    p {
       grid-area: desc;
       display: flex;
       flex-direction: column;
@@ -333,14 +269,7 @@ const { cases } = Astro.props;
       text-indent: var(--copy-text-indent);
     }
 
-    .achievements {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-s);
-      grid-area: team;
-    }
-
-    .tech-highlights {
+    article > div {
       grid-area: highlights;
       display: flex;
       flex-direction: column;
@@ -349,12 +278,7 @@ const { cases } = Astro.props;
       border-top: var(--border-stroke-width) solid var(--color-muted);
     }
 
-    .case-deco-footer {
-      display: flex;
-      justify-content: center;
-    }
-
-    .metrics {
+    aside {
       grid-area: metrics;
       display: flex;
       gap: var(--space-m);
@@ -370,86 +294,17 @@ const { cases } = Astro.props;
       }
     }
 
-    .radial-metrics {
+    footer {
       display: flex;
-      flex-wrap: nowrap;
       justify-content: center;
-      gap: var(--space-s);
-      text-align: center;
-      & > figure {
-        flex: 1 1 0;
-      }
     }
   }
 </style>
 
 <script>
-  import { bindHoverFocusSFX, getSFX } from "@lib/sfx";
-  import { gsap } from "gsap";
-  import { Draggable } from "gsap/Draggable";
-
-  gsap.registerPlugin(Draggable);
-
-  const ui = getSFX();
-
-  const tablist = document.querySelector<HTMLElement>("[role=tablist]");
-  const wrapper = tablist?.parentElement ?? null;
-  const tabs = Array.from(
-    tablist?.querySelectorAll<HTMLElement>("[role=tab]") ?? [],
-  );
-  const jacks = tabs.map((tab) => tab.querySelector<HTMLElement>(".jack"));
-  const inputJack = wrapper?.querySelector<HTMLElement>(".input-jack") ?? null;
-  const cable = wrapper?.querySelector<SVGPathElement>(".cable") ?? null;
-  const spark = wrapper?.querySelector<SVGPathElement>(".spark") ?? null;
-  const plug = wrapper?.querySelector<HTMLElement>(".plug") ?? null;
-
-  type Point = { x: number; y: number };
-
-  function activateByClickOrKey(tab: HTMLElement) {
-    const index = tabs.indexOf(tab);
-    if (index < 0 || index === activeIndex) return;
-    activate(index, { focus: true, spark: true });
-  }
-
-  let isDraggingCable = false;
-
-  bindHoverFocusSFX(tabs, {
-    skip: (tab) =>
-      isDraggingCable || tab.getAttribute("aria-selected") === "true",
-  });
-
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => activateByClickOrKey(tab));
-
-    tab.addEventListener("keydown", (e) => {
-      const idx = tabs.indexOf(tab);
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        activateByClickOrKey(tabs[(idx + 1) % tabs.length]);
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        activateByClickOrKey(tabs[(idx - 1 + tabs.length) % tabs.length]);
-      } else if (e.key === "Home") {
-        e.preventDefault();
-        activateByClickOrKey(tabs[0]);
-      } else if (e.key === "End") {
-        e.preventDefault();
-        activateByClickOrKey(tabs[tabs.length - 1]);
-      }
-    });
-  });
-
-  let activeIndex = Math.max(
-    0,
-    tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"),
-  );
-
-  // Reassigned below once the patch-cable elements are found; stays a no-op
-  // (e.g. if markup is missing) so `activate` is always safe to call.
-  let settleCableTo: (
-    index: number,
-    opts?: { ease?: string; spark?: boolean },
-  ) => void = () => {};
+  import { bindHoverFocusSFX } from "@lib/sfx";
+  import type { PatchCableElement } from "@components/patch-cable/patch-cable";
+  import "@components/patch-cable/patch-cable";
 
   function setIconAnimating(tab: HTMLElement, animate: boolean) {
     const icon = tab.querySelector(".case-icon");
@@ -458,297 +313,71 @@ const { cases } = Astro.props;
     );
   }
 
-  function activate(
-    index: number,
-    opts: { focus: boolean; ease?: string; spark?: boolean },
-  ) {
-    const changed = index !== activeIndex;
+  function initTabs(tablist: HTMLElement) {
+    const cable = tablist.closest<PatchCableElement>("patch-cable");
+    if (!cable) return;
 
-    tabs.forEach((t, i) => {
-      t.setAttribute("aria-selected", i === index ? "true" : "false");
-      t.setAttribute("tabindex", i === index ? "0" : "-1");
-      const panel = document.getElementById(
-        t.getAttribute("aria-controls") ?? "",
-      );
-      if (panel) panel.hidden = i !== index;
+    const tabs = Array.from(
+      tablist.querySelectorAll<HTMLElement>("[role=tab]"),
+    );
+    let current = cable.activeIndex;
+
+    function activate(index: number, focus: boolean) {
+      tabs.forEach((t, i) => {
+        t.setAttribute("aria-selected", i === index ? "true" : "false");
+        t.setAttribute("tabindex", i === index ? "0" : "-1");
+        const panel = document.getElementById(
+          t.getAttribute("aria-controls") ?? "",
+        );
+        if (panel) panel.hidden = i !== index;
+      });
+
+      if (index !== current) {
+        setIconAnimating(tabs[current], false);
+        setIconAnimating(tabs[index], true);
+      }
+
+      current = index;
+      if (focus) tabs[index].focus();
+    }
+
+    cable.addEventListener("cable:connect", (e) => {
+      activate(e.detail.index, e.detail.source !== "drag");
     });
 
-    if (changed) {
-      setIconAnimating(tabs[activeIndex], false);
-      setIconAnimating(tabs[index], true);
+    function select(tab: HTMLElement) {
+      const index = tabs.indexOf(tab);
+      if (index < 0 || index === cable!.activeIndex) return;
+      cable!.connectTo(index, { spark: true });
     }
 
-    activeIndex = index;
-    if (changed && opts.focus) tabs[index].focus();
-    settleCableTo(index, { ease: opts.ease, spark: opts.spark });
-  }
-
-  // Patch cable: a purely visual/interactive layer on top of the activation
-  // logic above. Click and keyboard activation always work on their own;
-  // dragging the plug is an equivalent, additional trigger for `activate`.
-  if (wrapper && inputJack && cable && spark && plug && jacks.every(Boolean)) {
-    const prefersReducedMotion = () =>
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function wrapperPoint(el: HTMLElement): Point {
-      const wrapperRect = wrapper!.getBoundingClientRect();
-      const r = el.getBoundingClientRect();
-      return {
-        x: r.left + r.width / 2 - wrapperRect.left,
-        y: r.top + r.height / 2 - wrapperRect.top,
-      };
-    }
-
-    function inputPoint(): Point {
-      return wrapperPoint(inputJack!);
-    }
-
-    const jackPoint = (index: number) => wrapperPoint(jacks[index]!);
-
-    function cablePath(start: Point, end: Point) {
-      const dy = end.y - start.y;
-      const bend = Math.max(40, Math.abs(dy) * 0.5);
-      const lean = Math.sign(dy) || -1;
-      const cp1y = start.y + bend * lean;
-      const cp2y = end.y - bend * lean;
-      return `M ${start.x} ${start.y} C ${start.x} ${cp1y}, ${end.x} ${cp2y}, ${end.x} ${end.y}`;
-    }
-
-    function drawCableTo(point: Point) {
-      cable!.setAttribute("d", cablePath(inputPoint(), point));
-    }
-
-    gsap.set(plug, { xPercent: -50, yPercent: -50 });
-
-    function paintInstant(index: number) {
-      const point = jackPoint(index);
-      gsap.set(plug, { x: point.x, y: point.y, opacity: 1 });
-      drawCableTo(point);
-    }
-
-    // Fraction of the settle tween after which a click/keyboard switch
-    // starts arcing to the target jack, mirroring the spark seen on drag.
-    const SETTLE_SPARK_START = 0.35;
-
-    settleCableTo = function (
-      index: number,
-      opts: { ease?: string; spark?: boolean } = {},
-    ) {
-      const target = jackPoint(index);
-      const targetD = cablePath(inputPoint(), target);
-
-      endSettleSpark();
-
-      if (prefersReducedMotion()) {
-        gsap.set(plug, { x: target.x, y: target.y, opacity: 1 });
-        cable!.setAttribute("d", targetD);
-        if (opts.spark) ui.play("connect");
-        return;
-      }
-
-      // At rest (click/keyboard) there's no existing velocity, so an inOut
-      // ease avoids the "arrives instantly" look a plain out-ease has. Right
-      // after a drag release the plug already has velocity, so an inOut
-      // ease (which starts at zero) reads as a stutter; drag hands in an
-      // out-ease instead, which starts fast and continues the motion.
-      const ease = opts.ease ?? "power2.inOut";
-
-      gsap.to(plug, {
-        x: target.x,
-        y: target.y,
-        opacity: 1,
-        duration: 0.7,
-        ease,
-        overwrite: "auto",
-        onUpdate() {
-          if (!opts.spark) return;
-          const progress = this.progress();
-          // Skip the final frame: the plug sits on the jack, so the arc
-          // would collapse to zero length right before fading out.
-          if (progress >= 1) return;
-          sparkOrigin = {
-            x: gsap.getProperty(plug, "x") as number,
-            y: gsap.getProperty(plug, "y") as number,
-          };
-          if (settleSparkIndex < 0 && progress >= SETTLE_SPARK_START) {
-            settleSparkIndex = index;
-            tabs[index].classList.add("cable-target");
-            ui.play("snap");
-            startSpark(index);
-          } else if (settleSparkIndex >= 0) {
-            drawSpark(index);
-          }
-        },
-        onComplete() {
-          if (settleSparkIndex < 0) return;
-          endSettleSpark();
-          ui.play("connect");
-        },
-      });
-
-      gsap.to(cable, {
-        attr: { d: targetD },
-        duration: 0.7,
-        ease,
-        overwrite: "auto",
-      });
-    };
-
-    // Initial paint: no entrance animation, cable renders already connected.
-    paintInstant(activeIndex);
-
-    // Only reposition on a genuine width change (viewport resize/container
-    // query breakpoint). Toggling which panel is `hidden` changes the
-    // wrapper's *height* on every tab switch, which would otherwise fire
-    // this observer mid-settle-tween and snap the cable straight to the
-    // target, cutting the animation short.
-    let lastWidth = wrapper.getBoundingClientRect().width;
-    const resizeObserver = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width ?? lastWidth;
-      if (width === lastWidth) return;
-      lastWidth = width;
-      paintInstant(activeIndex);
+    bindHoverFocusSFX(tabs, {
+      skip: (tab) =>
+        cable.dragging || tab.getAttribute("aria-selected") === "true",
     });
-    resizeObserver.observe(wrapper);
 
-    const SNAP_DISTANCE = 56;
+    tabs.forEach((tab, idx) => {
+      tab.addEventListener("click", () => select(tab));
 
-    function nearestTabIndex(point: Point): number {
-      let best = -1;
-      let bestDistance = Infinity;
-
-      jacks.forEach((_, i) => {
-        const p = jackPoint(i);
-        const distance = Math.hypot(p.x - point.x, p.y - point.y);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = i;
+      tab.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          select(tabs[(idx + 1) % tabs.length]);
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          select(tabs[(idx - 1 + tabs.length) % tabs.length]);
+        } else if (e.key === "Home") {
+          e.preventDefault();
+          select(tabs[0]);
+        } else if (e.key === "End") {
+          e.preventDefault();
+          select(tabs[tabs.length - 1]);
         }
       });
-
-      return bestDistance <= SNAP_DISTANCE ? best : -1;
-    }
-
-    let hoveredIndex = -1;
-
-    // Jagged, hand-drawn-looking arc standing in for an electric spark
-    // jumping the remaining gap between the dragged plug and a reachable
-    // (but not yet connected) jack.
-    function lightningPath(start: Point, end: Point): string {
-      const segments = 6;
-      const dx = end.x - start.x;
-      const dy = end.y - start.y;
-      const len = Math.hypot(dx, dy) || 1;
-      const nx = -dy / len;
-      const ny = dx / len;
-
-      const points: Point[] = [];
-      for (let i = 0; i <= segments; i++) {
-        const t = i / segments;
-        let x = start.x + dx * t;
-        let y = start.y + dy * t;
-        if (i > 0 && i < segments) {
-          const offset = (Math.random() - 0.5) * 16;
-          x += nx * offset;
-          y += ny * offset;
-        }
-        points.push({ x, y });
-      }
-
-      return points
-        .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
-        .join(" ");
-    }
-
-    let sparkTimer: ReturnType<typeof setInterval> | null = null;
-    let sparkSound: ReturnType<typeof ui.play> = null;
-    // Where the spark arcs from: the dragged plug, or the plug mid-settle.
-    let sparkOrigin: Point | null = null;
-    // Tab currently sparking from a click/keyboard settle, or -1.
-    let settleSparkIndex = -1;
-
-    function endSettleSpark() {
-      if (settleSparkIndex < 0) return;
-      tabs[settleSparkIndex].classList.remove("cable-target");
-      settleSparkIndex = -1;
-      sparkOrigin = null;
-      stopSpark();
-    }
-
-    function drawSpark(index: number) {
-      if (!sparkOrigin) return;
-      spark!.setAttribute("d", lightningPath(sparkOrigin, jackPoint(index)));
-    }
-
-    function stopSpark() {
-      if (sparkTimer !== null) {
-        clearInterval(sparkTimer);
-        sparkTimer = null;
-      }
-      sparkSound?.stop();
-      sparkSound = null;
-      gsap.to(spark, { opacity: 0, duration: 0.15, overwrite: true });
-    }
-
-    function startSpark(index: number) {
-      if (prefersReducedMotion()) return;
-      gsap.to(spark, { opacity: 1, duration: 0.1, overwrite: true });
-      const draw = () => drawSpark(index);
-      draw();
-      sparkTimer = setInterval(draw, 55);
-
-      // "scanning" is a looping cue: start it once and keep the handle so
-      // stopSpark can end it when the arc breaks or the plug is dropped.
-      // Its pack default (0.075) gets lost under the other cues.
-      sparkSound = ui.play("scanning", { retrigger: "restart", volume: 0.5 });
-    }
-
-    function setHover(index: number) {
-      if (index === hoveredIndex) return;
-      if (hoveredIndex >= 0)
-        tabs[hoveredIndex].classList.remove("cable-target");
-      hoveredIndex = index;
-      stopSpark();
-      if (hoveredIndex >= 0) {
-        tabs[hoveredIndex].classList.add("cable-target");
-        ui.play("snap");
-        startSpark(hoveredIndex);
-      }
-    }
-
-    Draggable.create(plug, {
-      type: "x,y",
-      bounds: wrapper,
-      onDragStart() {
-        isDraggingCable = true;
-        gsap.killTweensOf(plug);
-        endSettleSpark();
-        ui.play("drag-start");
-      },
-      onDrag() {
-        const point = { x: this.x, y: this.y };
-        sparkOrigin = point;
-        drawCableTo(point);
-        setHover(nearestTabIndex(point));
-      },
-      onDragEnd() {
-        isDraggingCable = false;
-        const point = { x: this.x, y: this.y };
-        const target = nearestTabIndex(point);
-        setHover(-1);
-        sparkOrigin = null;
-
-        if (target >= 0 && target !== activeIndex) {
-          ui.play("connect");
-          activate(target, { focus: false, ease: "power2.out" });
-        } else if (target >= 0) {
-          ui.play("drop");
-          settleCableTo(activeIndex, { ease: "power2.out" });
-        } else {
-          ui.play("invalid-drop");
-          settleCableTo(activeIndex, { ease: "power2.out" });
-        }
-      },
     });
   }
+
+  document
+    .querySelectorAll<HTMLElement>("[role=tablist]")
+    .forEach(initTabs);
 </script>

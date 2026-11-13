@@ -1,0 +1,93 @@
+---
+interface Props {
+  mode?: "select" | "tether";
+  /** Index of the target the plug initially rests on (select mode). */
+  active?: number;
+}
+
+const { mode = "select", active = 0 } = Astro.props;
+---
+
+<!--
+  Decorative cable with a draggable plug. Slot content must contain one
+  `data-cable-origin` and at least one `data-cable-target` element (e.g. Jack).
+  See ./patch-cable.ts for behaviour and events.
+-->
+<patch-cable data-mode={mode} data-active={active}>
+  <slot />
+
+  <svg aria-hidden="true">
+    <path data-cable></path>
+    <path data-spark></path>
+  </svg>
+
+  <span data-plug aria-hidden="true"></span>
+</patch-cable>
+
+<style>
+  patch-cable {
+    display: block;
+    position: relative;
+    height: 100%;
+  }
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  path[data-cable] {
+    fill: none;
+    stroke: var(--color-foreground);
+    stroke-width: 4;
+  }
+
+  path[data-spark] {
+    fill: none;
+    stroke: var(--color-y100);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    filter: drop-shadow(0 0 3px var(--color-y100))
+      drop-shadow(0 0 6px var(--color-y100));
+  }
+
+  [data-plug] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-foreground);
+    border: 3px solid var(--color-bg);
+    box-shadow: 0 0 0 1px var(--color-foreground);
+    cursor: grab;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    pointer-events: auto;
+    opacity: 0;
+    z-index: 3;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+</style>
+
+<script>
+  import "./patch-cable";
+</script>

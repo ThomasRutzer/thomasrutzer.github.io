@@ -1,5 +1,6 @@
 ---
 import Jack from "@components/Jack.astro";
+import PatchCable from "@components/patch-cable/PatchCable.astro";
 
 interface Props {
   width?: "sm" | "md" | "lg" | "full";
@@ -12,30 +13,23 @@ const { width = "md", direction = "normal", withSpacing = true } = Astro.props;
 
 <div
   class:list={[
-    "connector",
     `width-${width}`,
     { reverse: direction === "reverse", spaced: withSpacing },
   ]}
   aria-hidden="true"
 >
-  <Jack class="dot output" />
-  <svg class="cable" viewBox="0 0 100 100" preserveAspectRatio="none">
-    <path d="M 100 0 C 100 80, 0 20, 0 100" vector-effect="non-scaling-stroke"
-    ></path>
-  </svg>
-  <Jack class="dot input" />
+  <PatchCable mode="tether">
+    <Jack data-cable-origin />
+    <Jack data-cable-target />
+  </PatchCable>
 </div>
 
 <style>
-  .connector {
+  div {
     position: relative;
     height: var(--space-2xl-3xl);
     margin-inline: auto;
-    z-index:var(--z-overlay);
-
-    &.reverse {
-      transform: scaleX(-1);
-    }
+    z-index: var(--z-overlay);
 
     &.spaced {
       margin-block: var(--space-m);
@@ -56,36 +50,32 @@ const { width = "md", direction = "normal", withSpacing = true } = Astro.props;
     &.width-full {
       width: 100%;
     }
-  }
 
-  .cable {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-
-    path {
-      fill: none;
-      stroke: var(--color-foreground);
-      stroke-width: 4;
+    :global([data-cable-origin]),
+    :global([data-cable-target]) {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 3;
     }
-  }
 
-  :global(.dot) {
-    position: absolute;
-    left: 0;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-  }
+    :global([data-cable-origin]) {
+      top: 0;
+      left: 100%;
+    }
 
-  :global(.dot.output) {
-    top: 0;
-    left: 100%;
-  }
+    :global([data-cable-target]) {
+      top: 100%;
+      left: 0;
+    }
 
-  :global(.dot.input) {
-    top: 100%;
+    &.reverse {
+      :global([data-cable-origin]) {
+        left: 0;
+      }
+
+      :global([data-cable-target]) {
+        left: 100%;
+      }
+    }
   }
 </style>
