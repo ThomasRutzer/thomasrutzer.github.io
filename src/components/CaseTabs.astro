@@ -198,7 +198,9 @@ const { cases } = Astro.props;
         color-mix(in srgb, var(--color-y100) 30%, transparent);
     }
 
-    &[aria-selected="true"] footer :global([data-cable-target][data-cable-hot]) {
+    &[aria-selected="true"]
+      footer
+      :global([data-cable-target][data-cable-hot]) {
       border-color: var(--color-p300);
       box-shadow: 0 0 0 4px
         color-mix(in srgb, var(--color-p100) 30%, transparent);
@@ -236,6 +238,14 @@ const { cases } = Astro.props;
       column-gap: var(--space-xl);
       row-gap: var(--space-m);
 
+      p {
+        grid-area: desc;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-m);
+        text-indent: var(--copy-text-indent);
+      }
+
       @container tablist (min-width: 900px) {
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
@@ -259,14 +269,6 @@ const { cases } = Astro.props;
       &::first-line {
         color: var(--color-ui);
       }
-    }
-
-    p {
-      grid-area: desc;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-m);
-      text-indent: var(--copy-text-indent);
     }
 
     article > div {
@@ -302,9 +304,9 @@ const { cases } = Astro.props;
 </style>
 
 <script>
-  import { bindHoverFocusSFX } from "@lib/sfx";
-  import type { PatchCableElement } from "@components/patch-cable/patch-cable";
   import "@components/patch-cable/patch-cable";
+  import type { PatchCableElement } from "@components/patch-cable/patch-cable";
+  import { bindHoverFocusSFX } from "@lib/sfx";
 
   function setIconAnimating(tab: HTMLElement, animate: boolean) {
     const icon = tab.querySelector(".case-icon");
@@ -377,7 +379,5 @@ const { cases } = Astro.props;
     });
   }
 
-  document
-    .querySelectorAll<HTMLElement>("[role=tablist]")
-    .forEach(initTabs);
+  document.querySelectorAll<HTMLElement>("[role=tablist]").forEach(initTabs);
 </script>
